@@ -1,0 +1,9 @@
+fastapi
+pydantic[email]
+pymongo[srv]
+python-dotenv
+requests
+sentence-transformers
+scikit-learn
+numpy
+bson
