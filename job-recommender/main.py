@@ -11,6 +11,7 @@ from fastapi.encoders import jsonable_encoder
 from bson import ObjectId
 import numpy as np
 import requests
+import uvicorn
 from datetime import datetime, timezone
 from services import UserService
 from models import UserAssessment, UserPreferences
@@ -58,8 +59,8 @@ def fetch_jobs_from_adzuna(country_code: str):
         "app_key": api_key,
         "results_per_page": 20,
         "content-type": "application/json",
-        "what": "software engineer",  # Add a default search term
-        "sort_by": "date",  # Sort by newest first
+        "what": "software engineer",
+        "sort_by": "date",
     }
     
     try:
@@ -92,6 +93,10 @@ def get_recommendations(user_input, jobs):
     similarities = cosine_similarity(user_embedding, job_embeddings)
     top_indices = np.argsort(similarities[0])[::-1][:10]
     return [jobs[i] for i in top_indices]
+
+@app.get("/")
+async def root():
+    return {"message": "FastAPI is running!"}
 
 @app.post("/recommend-jobs/")
 async def recommend_jobs(user_preferences: UserPreferences):
@@ -133,7 +138,7 @@ async def recommend_jobs(user_preferences: UserPreferences):
             "application_url": job.get("redirect_url", ""),
             "posted_date": job.get("created", "Unknown").strftime('%Y-%m-%d') if isinstance(job.get("created"), datetime) else 'Unknown',
             "expiry_date": job.get("expires", "Unknown").strftime('%Y-%m-%d') if isinstance(job.get("expires"), datetime) else 'Unknown',
-            "recommended_for_experience_level": f"{user_preferences.years_of_experience}+ years",  # Assuming this as a direct input
+            "recommended_for_experience_level": f"{user_preferences.years_of_experience}+ years",
         })
 
     return {"recommended_jobs": recommended_jobs}
