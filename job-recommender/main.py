@@ -24,10 +24,19 @@ from data_sources import (
     career_goals_collection,
     initialize_all_collections
 )
+from fastapi.middleware.cors import CORSMiddleware
 
 load_dotenv()
 
 app = FastAPI()
+
+app.add_middleware(
+  CORSMiddleware,
+  allow_origins=["https://career-ease-frontend.vercel.app"],
+  allow_credentials=True,
+  allow_methods=["*"],
+  allow_headers=["*"],
+)
 
 @app.on_event("startup")
 async def startup_event():
